@@ -1,0 +1,24 @@
+{
+  "name": "puppeteer-render",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sinon02/puppeteer-render.git"
+  },
+  "author": "Sinon02",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sinon02/puppeteer-render/issues"
+  },
+  "homepage": "https://github.com/Sinon02/puppeteer-render#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "puppeteer": "^19.3.0",
+    "puppeteer-cluster": "^0.23.0"
+  }
+}

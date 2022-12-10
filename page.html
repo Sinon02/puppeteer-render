@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>MathJax example</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <!-- Todo: Change From MathJax v3 to MathJax v2 -->
+    <!-- <script id="MathJax-script" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> -->
+    <!-- <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> -->
+
+    <script id="MathJax-script" src="https://cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+
+</head>
+
+<body style="margin:0;top:0;left:0;">
+    <div id="math"
+        style="white-space:pre-wrap;position:absolute;display:inline;max-width:500px;max-height:200px;margin:0;top:0;left:0;font-size:150%;font-family:'Times New Roman','SimSun';">
+        $x=1+1$</div>
+</body>
+<script type="text/javascript">
+    function ChangeFormula(new_formula) {
+        let Ele = document.getElementById("math");
+        Ele.innerHTML = '$' + new_formula+ '$';
+        MathJax.Hub.Queue(['Typeset', MathJax.Hub, Ele], () => {window.renderComplete = true;});
+    }
+    // get text lines in HTML page
+    function GetCoords() {
+        let Ele = document.getElementById("math")
+        let nodes = Ele.childNodes
+
+        function dealText(sNode) {
+            let split_s = new Array()
+            let split_coords = new Array()
+            let s = sNode.nodeValue
+            if (s === '\\n' || s.replace(/\\s/g, "").length === 0) {
+                return [split_s, split_coords]
+            }
+            let start = 0
+            let range = document.createRange()
+            range.setStart(sNode, 0)
+            for (let i = 0; i !== sNode.length; i++) {
+                range.setEnd(sNode, i + 1)
+                let rects = range.getClientRects()
+                // if range contains more than one text line
+                if (rects.length > 1) {
+                    let rect = rects[0]
+                    split_s.push(s.substring(start, i))
+                    split_coords.push({
+                        "x": rect.x,
+                        "y": rect.y,
+                        "width": rect.width,
+                        "height": rect.height
+                    })
+                    start = i
+                    range.setStart(sNode, start)
+                }
+            }
+            // add the last (or the only first) text line to result
+            if (split_s.length === 0) {
+                split_s.push(s)
+                let rects = range.getClientRects()
+                let rect = rects[0]
+                split_coords.push({
+                    "x": rect.x,
+                    "y": rect.y,
+                    "width": rect.width,
+                    "height": rect.height
+                })
+            } else if (start > 0 && start < sNode.length) {
+                split_s.push(s.substring(start, sNode.length))
+                range.setStart(sNode, start)
+                range.setEnd(sNode, sNode.length)
+                let rects = range.getClientRects()
+                let rect = rects[0]
+                split_coords.push({
+                    "x": rect.x,
+                    "y": rect.y,
+                    "width": rect.width,
+                    "height": rect.height
+                })
+            }
+            return [split_s, split_coords]
+        }
+        let all_split_s = Array()
+        let all_split_coords = Array()
+        let formula_coords = Array()
+        for (let i = 0; i != nodes.length; i++) {
+            let node = nodes[i]
+            if (node.nodeName === "#text") {
+                // split text region to textlines
+                let [split_s, split_coords] = dealText(node)
+                all_split_s = all_split_s.concat(split_s)
+                all_split_coords = all_split_coords.concat(split_coords)
+                // Todo: Change From MathJax v3 to MathJax v2
+            }
+        }
+
+        let mathNodes = document.getElementsByClassName("math")
+        for (let i = 0; i != mathNodes.length; i++) {
+            let mathNode = mathNodes[i]
+            let rect = mathNode.getClientRects()[0]
+            formula_coords.push({
+                "x": rect.x,
+                "y": rect.y,
+                "width": rect.width,
+                "height": rect.height
+            })
+        }
+
+        window.backend.getCoords([all_split_s, all_split_coords, formula_coords])
+    }
+
+    function GetSize() {
+        // get the page size
+        let element = document.getElementById("math")
+        let width = element.offsetWidth
+        let height = element.offsetHeight
+        window.backend.getSize([width, height])
+        MathJax.Hub.Startup.signal.Post("GetSize End")
+    }
+
+    function GetMath() {
+        // get all math formulas in page
+        let element = document.getElementById("math")
+        // Todo: Change From MathJax v3 to MathJax v2
+        let formula_nodes = MathJax.Hub.getAllJax(element);
+        let formulas = Array()
+        for (let i = 0; i != formula_nodes.length; i++) {
+            formulas.push(formula_nodes[i].originalText)
+        }
+        window.backend.getMath([formulas])
+        MathJax.Hub.Startup.signal.Post("GetMath End")
+    }
+    // window.onload = function () {
+    //     // use QWebChannel to transfer data from frontend to backend
+    //     new QWebChannel(qt.webChannelTransport, function (channel) {
+    //         window.backend = channel.objects.backend
+    //     })
+    // }
+</script>
+<script type="text/x-mathjax-config">
+    // http://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html
+        MathJax.Hub.Config({
+            showProcessingMessages: false,
+            messageStyle: "none",
+            extensions: ["tex2jax.js"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+            tex2jax: {
+                inlineMath:  [ ["$", "$"] , ['\\[', '\\]']],
+                displayMath: [ ["$$","$$"] ],
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre','code','a'],
+                ignoreClass:"comment-content"
+            },
+            "HTML-CSS": {
+                availableFonts: [],
+                preferredFont: null,
+                webFont: "TeX"
+            }          
+        });
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    </script>
+
+</html>
