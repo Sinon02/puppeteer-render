@@ -12,21 +12,23 @@
 
     <script id="MathJax-script" src="https://cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
     </script>
-    <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <!-- <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css" /> -->
 
 </head>
 
 <body style="margin:0;top:0;left:0;">
     <div id="math"
         style="white-space:pre-wrap;position:absolute;display:inline;max-width:500px;max-height:200px;margin:0;top:0;left:0;font-size:150%;font-family:'Times New Roman','SimSun';">
-        $x=1+1$</div>
+    </div>
 </body>
 <script type="text/javascript">
     function ChangeFormula(new_formula) {
         let Ele = document.getElementById("math");
-        Ele.innerHTML = '$' + new_formula+ '$';
-        MathJax.Hub.Queue(['Typeset', MathJax.Hub, Ele], () => {window.renderComplete = true;});
+        Ele.innerHTML = '$' + new_formula + '$';
+        MathJax.Hub.Queue(['Typeset', MathJax.Hub, Ele], () => {
+            window.renderComplete = true;
+        });
     }
     // get text lines in HTML page
     function GetCoords() {

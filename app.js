@@ -17,10 +17,6 @@ var browserWSEndpoint;
       '--window-size=1280,960'
     ],
   });
-  const page = await browser.pages().then(allPages => allPages[0]);
-  await page.goto('file://C:/Users/Sinon/Desktop/puppeteer-render/page.html');
-  // await page.close();
-  // await browser.close();
   return browser.wsEndpoint();
 })().then(value => {
   console.log(value)
@@ -29,6 +25,12 @@ var browserWSEndpoint;
 
 async function RenderFormula(page, formula, savePath) {
   try {
+    const mathJaxLoaded = await page.evaluate(() => {
+      return !!(typeof MathJax !== 'undefined') // !! converts anything to boolean
+    })
+    if (!mathJaxLoaded) {
+      await page.goto('file://C:/Users/Sinon/Desktop/puppeteer-render/page.html');
+    }
     await page.evaluate((formula) => {
       window.renderComplete = false
       ChangeFormula(formula);
@@ -54,10 +56,6 @@ app.post('/render', async (req, res) => {
     let prefix = parseFloat(req.body.prefix)
     browser = await puppeteer.connect({ browserWSEndpoint });
     const page = await browser.pages().then(allPages => allPages[0]);
-    // await page.exposeFunction('takeScreenshot', (async () => {
-    //   var math = await page.$("#math")
-    //   await math.screenshot({ path: "./screenshot.png" });
-    // }));
 
     for (let i = 0; i < formulas.length; i++) {
       let formula = formulas[i]
