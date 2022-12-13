@@ -153,9 +153,9 @@ if __name__ == "__main__":
     formulas = [formula for formula in formulas if len(formula.strip()) > 0]
     headers = {'Content-Type': 'application/json'}
     bp = BracketParser()
-    for i in range(0, len(formulas), 64):
+    for i in range(0, len(formulas), 320):
         formulas_to_render = [
-            preprocess(bp, formula) for formula in formulas[i:i + 64]
+            preprocess(bp, formula) for formula in formulas[i:i + 320]
         ]
         data = {'formulas': formulas_to_render, 'dir': save_dir, 'prefix': i}
         resp = requests.post(

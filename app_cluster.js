@@ -6,7 +6,7 @@ const { Cluster } = require('puppeteer-cluster');
 
 
 const app = express();
-app.use(express.json())
+app.use(express.json({limit:"10mb"}))
 
 var cluster;
 
@@ -14,11 +14,27 @@ var cluster;
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 10,
-    monitor: false
+    monitor: true,
+    timeout: 999999,
+    puppeteerOptions: {
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        `--window-size=${1280},${960}`],
+    },
   });
 
   await cluster.task(async ({ page, data }) => {
-    await RenderFormula(page, data)
+    for (let i = 0; i < data.length; i++) {
+      let pageData = data[i]
+      await RenderFormula(page, pageData);
+    }
+    // await new Promise(resolve => {
+    //   // call resolve() when you want to close the page
+    // });
   });
   return cluster
 })().then(value => {
@@ -34,6 +50,7 @@ async function RenderFormula(page, data) {
     })
     if (!mathJaxLoaded) {
       await page.goto('file://C:/Users/Sinon/Desktop/puppeteer-render/page.html');
+      // console.log('MathJax Reloaded')
     }
     await page.evaluate((formula) => {
       window.renderComplete = false
@@ -59,11 +76,16 @@ app.post('/render', async (req, res) => {
     let dir = req.body.dir
     let prefix = parseFloat(req.body.prefix)
     // let renderTasks = []
+    let clusterData = []
     for (let i = 0; i < formulas.length; i++) {
       let formula = formulas[i];
       let savePath = dir + '//' + (prefix + i).toString() + '.png';
       let data = { "formula": formula, "savePath": savePath };
-      cluster.queue(data);
+      clusterData.push(data)
+      if ((i + 1) % 32  === 0) {
+        cluster.queue(clusterData);
+        clusterData = [];
+      }
     }
     await cluster.idle();
     var endTime = performance.now()
