@@ -49,7 +49,7 @@ async function RenderFormula(page, data) {
       return !!(typeof MathJax !== 'undefined') // !! converts anything to boolean
     })
     if (!mathJaxLoaded) {
-      await page.goto('file://C:/Users/Sinon/Desktop/puppeteer-render/page.html');
+      await page.goto('file:///data/sinon/puppeteer-render/page.html');
       // console.log('MathJax Reloaded')
     }
     await page.evaluate((formula) => {
@@ -82,7 +82,7 @@ app.post('/render', async (req, res) => {
       let savePath = dir + '//' + (prefix + i).toString() + '.png';
       let data = { "formula": formula, "savePath": savePath };
       clusterData.push(data)
-      if ((i + 1) % 32  === 0) {
+      if ((i + 1) % 100  === 0) {
         cluster.queue(clusterData);
         clusterData = [];
       }

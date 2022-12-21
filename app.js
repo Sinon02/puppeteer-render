@@ -4,7 +4,7 @@ const { performance } = require('perf_hooks');
 
 
 const app = express();
-app.use(express.json())
+app.use(express.json({limit:"10mb"}))
 
 var browserWSEndpoint;
 
@@ -29,7 +29,7 @@ async function RenderFormula(page, formula, savePath) {
       return !!(typeof MathJax !== 'undefined') // !! converts anything to boolean
     })
     if (!mathJaxLoaded) {
-      await page.goto('file://C:/Users/Sinon/Desktop/puppeteer-render/page.html');
+      await page.goto('file:///data/sinon/puppeteer-render/page.html');
     }
     await page.evaluate((formula) => {
       window.renderComplete = false

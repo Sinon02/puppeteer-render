@@ -150,12 +150,13 @@ if __name__ == "__main__":
     input_file = './im2latex_formulas.lst'
     with open(input_file, encoding='ISO-8859-1', newline="\n") as fin:
         formulas = fin.readlines()
+        print(len(formulas))
     formulas = [formula for formula in formulas if len(formula.strip()) > 0]
     headers = {'Content-Type': 'application/json'}
     bp = BracketParser()
-    for i in range(0, len(formulas), 320):
+    for i in range(0, len(formulas), 1000):
         formulas_to_render = [
-            preprocess(bp, formula) for formula in formulas[i:i + 320]
+            preprocess(bp, formula) for formula in formulas[i:i + 1000]
         ]
         data = {'formulas': formulas_to_render, 'dir': save_dir, 'prefix': i}
         resp = requests.post(
