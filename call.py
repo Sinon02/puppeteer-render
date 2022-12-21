@@ -121,24 +121,46 @@ class BracketParser(object):
 
 
 def preprocess(bp, line):
-    line = line.replace('\r', ' ').strip()
-    line = line.lstrip('%')
-    line = line.split('%')[0]
-    line = bp.delete_tags(r'\label', line)
-    line = bp.delete_tags(r'\label', line, True)
-    line = line.split(r'\label')[0]
-    # line = bp.replace_inner_tags(r'\rm\bf', [r'\mathrm', r'\textbf'], line)
-    # line = bp.replace_inner_tags(r'\bf\rm', r'\mathrm', line)
-    # line = bp.replace_inner_tags(r'\rm', r'\mathrm', line)
-    # line = bp.replace_inner_tags(r'\it', r'\textit', line)
-    # line = bp.replace_inner_tags(r'\bf', r'\textbf', line)
-    # line = re.sub(r'(hbox|mbox)', r'mathrm', line)
-    # line = re.sub(r'\\~', r"", line)
-    # line = re.sub(r'\$', r"", line)
-    line = re.sub(r'\\sp', r"^", line)
-    line = re.sub(r'\\sb', r"_", line)
-    line = line.strip()
-    return line
+    gt_line = line
+    gt_line = gt_line.replace('\r', ' ').strip()
+    # Remove \label first
+    gt_line = bp.delete_tags(r'\label', gt_line)
+    gt_line = bp.delete_tags(r'\label', gt_line, True)
+    gt_line = gt_line.lstrip('%')
+    gt_line = gt_line.split('%')[0]
+    gt_line = gt_line.split(r'\label')[0]
+    # gt_line = bp.replace_inner_tags(r'\rm\bf', [r'\mathrm', r'\textbf'], gt_line)
+    # gt_line = bp.replace_inner_tags(r'\bf\rm', r'\mathrm', gt_line)
+    # gt_line = bp.replace_inner_tags(r'\rm', r'\mathrm', gt_line)
+    # gt_line = bp.replace_inner_tags(r'\it', r'\textit', gt_line)
+    # gt_line = bp.replace_inner_tags(r'\bf', r'\textbf', gt_line)
+    # gt_line = re.sub(r'(hbox|mbox)', r'mathrm', gt_line)
+    # gt_line = re.sub(r'\\~', r"", gt_line)
+    gt_line = re.sub(r'\$', r"", gt_line)
+    gt_line = re.sub(r'(hbox)|(mbox)|(textup)', r'mathrm', gt_line)
+    gt_line = bp.delete_tags(r'\noalign', gt_line)
+    gt_line = bp.delete_tags(r'\noalign', gt_line, True)
+    gt_line = bp.delete_tags(r'\vspace', gt_line)
+    gt_line = bp.delete_tags(r'\vspace', gt_line, True)
+    gt_line = bp.delete_tags(r'\vskip', gt_line)
+    gt_line = bp.delete_tags(r'\vskip', gt_line, True)
+    gt_line = gt_line.replace(r'\hspace*', r'\hspace')
+    gt_line = re.sub(r'\\relax', r"", gt_line)
+    gt_line = re.sub(r'\\protect', r"", gt_line)
+    gt_line = re.sub(r'\\sp', r"^", gt_line)
+    gt_line = re.sub(r'\\sb', r"_", gt_line)
+    gt_line = re.sub(r'\\dag', r"\\dagger", gt_line)
+    gt_line = re.sub(r'\\ddag', r'\\ddagger', gt_line)
+    gt_line = re.sub(r'\\(\w)(?=\\)', r'\g<1>', gt_line)
+
+    render_line = gt_line
+    render_line = re.sub(r'<', r'\\lt', render_line)
+    render_line = re.sub(r'>', r'\\gt', render_line)
+    render_line = render_line.replace(r'\slash', '/')
+
+    gt_line = gt_line.strip()
+    render_line = render_line.strip()
+    return gt_line, render_line
 
 
 if __name__ == "__main__":
@@ -156,7 +178,7 @@ if __name__ == "__main__":
     bp = BracketParser()
     for i in range(0, len(formulas), 1000):
         formulas_to_render = [
-            preprocess(bp, formula) for formula in formulas[i:i + 1000]
+            preprocess(bp, formula)[1] for formula in formulas[i:i + 1000]
         ]
         data = {'formulas': formulas_to_render, 'dir': save_dir, 'prefix': i}
         resp = requests.post(
