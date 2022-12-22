@@ -149,13 +149,14 @@ def preprocess(bp, line):
     gt_line = re.sub(r'\\protect', r"", gt_line)
     gt_line = re.sub(r'\\sp', r"^", gt_line)
     gt_line = re.sub(r'\\sb', r"_", gt_line)
-    gt_line = re.sub(r'\\dag', r"\\dagger", gt_line)
-    gt_line = re.sub(r'\\ddag', r'\\ddagger', gt_line)
-    gt_line = re.sub(r'\\(\w)(?=\\)', r'\g<1>', gt_line)
+    gt_line = re.sub(r'\\ddag(?!\w)', r'\\ddagger', gt_line)
+    gt_line = re.sub(r'\\dag(?!\w)', r"\\dagger", gt_line)
+    gt_line = re.sub(r'\\boldmath', r"\\mathbf", gt_line)
+    gt_line = re.sub(r'\\(\w)(?=\\|\s)', r'\g<1>', gt_line)
 
     render_line = gt_line
-    render_line = re.sub(r'<', r'\\lt', render_line)
-    render_line = re.sub(r'>', r'\\gt', render_line)
+    render_line = re.sub(r'<', r'\\lt ', render_line)
+    render_line = re.sub(r'>', r'\\gt ', render_line)
     render_line = render_line.replace(r'\slash', '/')
 
     gt_line = gt_line.strip()
