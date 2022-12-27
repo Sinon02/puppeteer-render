@@ -54,7 +54,11 @@ async function RenderFormula(page, data) {
     }
     await page.evaluate((formula) => {
       window.renderComplete = false
-      ChangeFormula(formula);
+      if(formula) {
+        ChangeFormula(formula);
+      } else {
+        RandomBlank();
+      }
     }, formula)
     await page.waitForFunction(() => {
       return window.renderComplete

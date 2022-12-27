@@ -42,9 +42,9 @@ function ParseFormula(line){
             return (norm_str.replace(/\\label { .*? }/, ""));
         }
     } catch (e) {
-        console.error(line);
-        console.error(norm_str);
-        console.error(e);
+        // console.error(line);
+        // console.error(norm_str);
+        // console.error(e);
         return "";
     }
 }
