@@ -77,9 +77,11 @@ app.post('/render', async (req, res) => {
     let prefix = parseFloat(req.body.prefix)
     // let renderTasks = []
     let clusterData = []
+    let normFormulas = []
     for (let i = 0; i < formulas.length; i++) {
       let formula = formulas[i];
       formula = ParseFormula(formula);
+      normFormulas.push(formula);
       let savePath = dir + '//' + (prefix + i).toString() + '.png';
       let data = { "formula": formula, "savePath": savePath };
       clusterData.push(data)
@@ -90,7 +92,7 @@ app.post('/render', async (req, res) => {
     }
     await cluster.idle();
     var endTime = performance.now()
-    res.send(`Render Successfully in ${(endTime - startTime) / 1000} seconds`)
+    res.json({ "msg": `Render Successfully in ${(endTime - startTime) / 1000} seconds`, "formulas": normFormulas })
   } catch (error) {
     if (!res.headersSent) {
       res.status(400).send(error.message);

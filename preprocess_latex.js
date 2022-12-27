@@ -4,6 +4,8 @@ options = require("./third_party/katex/src/Options.js")
 
 function ParseFormula(line){
     // a = line
+    global_str = ""
+    norm_str = ""
     line = line.split('\\~').join(' ');
     
 
@@ -23,7 +25,7 @@ function ParseFormula(line){
 
         if (process.argv[2] == "tokenize") {
             var tree = katex.__parse(line, {});
-            console.log(global_str.replace(/\\label { .*? }/, ""));
+            return (global_str.replace(/\\label { .*? }/, ""));
         } else {
             // for (var i = 0; i < 300; ++i) {
             //     line = line.replace(/{\\rm/, "\\mathrm{");
@@ -37,17 +39,14 @@ function ParseFormula(line){
                 norm_str = norm_str.replace('SSSSSS', '$');
                 norm_str = norm_str.replace(' S S S S S S', '$');
             }
-            console.log(norm_str.replace(/\\label { .*? }/, ""));
+            return (norm_str.replace(/\\label { .*? }/, ""));
         }
     } catch (e) {
         console.error(line);
         console.error(norm_str);
         console.error(e);
-        console.log("");
+        return "";
     }
-    global_str = ""
-    norm_str = ""
-    return norm_str
 }
 
 
