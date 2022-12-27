@@ -81,16 +81,17 @@ class BracketParser(object):
                 need_pad = False
                 cur_seq = seq[all_occur[idx]:int(max(0, all_occur[idx + 1]))]
 
-            res, subseq = self.check_brackets(
-                cur_seq, open_brackets=['{', '('], close_brackets=['}', ')'])
+            res, subseq = self.check_brackets(cur_seq,
+                                              open_brackets=['{', '('],
+                                              close_brackets=['}', ')'])
             old_tag_exist = old_tag in cur_seq
 
             if need_pad:
                 if res:
                     cur_seq = re.sub(
-                        f'\\{subseq[0]}?' + old_tag.replace('\\',
-                                                            '\\\\') + '\s*',
-                        '{' + '{'.join(new_tag).replace('\\', '\\\\'), cur_seq)
+                        f'\\{subseq[0]}?' + old_tag.replace('\\', '\\\\') +
+                        '\s*', '{' + '{'.join(new_tag).replace('\\', '\\\\'),
+                        cur_seq)
 
                     edit_subseq = subseq + '}' * len(new_tag)
                     cur_seq = cur_seq.replace(subseq, edit_subseq)
@@ -99,8 +100,8 @@ class BracketParser(object):
                 res, render_item = self.check_brackets(subseq[1:-1])
                 edit_subseq = re.sub(
                     f'\\{subseq[0]}?' + old_tag.replace('\\', '\\\\') + '\s*',
-                    f'{subseq[0]}' + '{'.join(new_tag).replace(
-                        '\\', '\\\\') + "{", subseq)
+                    f'{subseq[0]}' + '{'.join(new_tag).replace('\\', '\\\\') +
+                    "{", subseq)
 
                 if res:
                     striped_render_item = re.sub(r'^{', '', render_item)
@@ -131,19 +132,13 @@ def preprocess(bp, line):
     gt_line = gt_line.split(r'\label')[0]
     # gt_line = bp.replace_inner_tags(r'\rm\bf', [r'\mathrm', r'\textbf'], gt_line)
     # gt_line = bp.replace_inner_tags(r'\bf\rm', r'\mathrm', gt_line)
-    # gt_line = bp.replace_inner_tags(r'\rm', r'\mathrm', gt_line)
+    gt_line = bp.replace_inner_tags(r'\rm', r'\mathrm', gt_line)
     # gt_line = bp.replace_inner_tags(r'\it', r'\textit', gt_line)
     # gt_line = bp.replace_inner_tags(r'\bf', r'\textbf', gt_line)
     # gt_line = re.sub(r'(hbox|mbox)', r'mathrm', gt_line)
     # gt_line = re.sub(r'\\~', r"", gt_line)
-    gt_line = re.sub(r'\$', r"", gt_line)
-    gt_line = re.sub(r'(hbox)|(mbox)|(textup)', r'mathrm', gt_line)
-    gt_line = bp.delete_tags(r'\noalign', gt_line)
-    gt_line = bp.delete_tags(r'\noalign', gt_line, True)
-    gt_line = bp.delete_tags(r'\vspace', gt_line)
-    gt_line = bp.delete_tags(r'\vspace', gt_line, True)
-    gt_line = bp.delete_tags(r'\vskip', gt_line)
-    gt_line = bp.delete_tags(r'\vskip', gt_line, True)
+    gt_line = re.sub(r'\$', r" ", gt_line)
+    gt_line = re.sub(r'(textup)', r'mathrm', gt_line)
     gt_line = gt_line.replace(r'\hspace*', r'\hspace')
     gt_line = re.sub(r'\\relax', r"", gt_line)
     gt_line = re.sub(r'\\protect', r"", gt_line)
@@ -152,7 +147,8 @@ def preprocess(bp, line):
     gt_line = re.sub(r'\\ddag(?!\w)', r'\\ddagger', gt_line)
     gt_line = re.sub(r'\\dag(?!\w)', r"\\dagger", gt_line)
     gt_line = re.sub(r'\\boldmath', r"\\mathbf", gt_line)
-    gt_line = re.sub(r'\\(\w)(?=\\|\s)', r'\g<1>', gt_line)
+    gt_line = re.sub(r'(?<!\\)\\([A-Za-z])(?=\\|\s)', r'\g<1>', gt_line)
+    gt_line = re.sub(r'\\>', ' ', gt_line)
 
     render_line = gt_line
     render_line = re.sub(r'<', r'\\lt ', render_line)
@@ -165,8 +161,8 @@ def preprocess(bp, line):
 
 
 if __name__ == "__main__":
-    save_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), 'image_rendered')
+    save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            'image_rendered')
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
@@ -182,9 +178,8 @@ if __name__ == "__main__":
             preprocess(bp, formula)[1] for formula in formulas[i:i + 1000]
         ]
         data = {'formulas': formulas_to_render, 'dir': save_dir, 'prefix': i}
-        resp = requests.post(
-            url='http://localhost:8080/render',
-            headers=headers,
-            data=json.dumps(data))
+        resp = requests.post(url='http://localhost:8080/render',
+                             headers=headers,
+                             data=json.dumps(data))
         print(resp.status_code)
         print(resp.text)

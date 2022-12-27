@@ -2,11 +2,11 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 const { performance } = require('perf_hooks');
 const { Cluster } = require('puppeteer-cluster');
-
-
+var ParseFormula = require('./preprocess_latex.js')
+ParseFormula = ParseFormula.ParseFormula
 
 const app = express();
-app.use(express.json({limit:"10mb"}))
+app.use(express.json({ limit: "10mb" }))
 
 var cluster;
 
@@ -79,10 +79,11 @@ app.post('/render', async (req, res) => {
     let clusterData = []
     for (let i = 0; i < formulas.length; i++) {
       let formula = formulas[i];
+      formula = ParseFormula(formula);
       let savePath = dir + '//' + (prefix + i).toString() + '.png';
       let data = { "formula": formula, "savePath": savePath };
       clusterData.push(data)
-      if ((i + 1) % 100  === 0) {
+      if ((i + 1) % 100 === 0) {
         cluster.queue(clusterData);
         clusterData = [];
       }
