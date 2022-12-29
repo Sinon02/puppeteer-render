@@ -30,6 +30,14 @@
             window.renderComplete = true;
         });
     }
+    function RandomBlank() {
+        let height = Math.ceil(Math.random() * 600 / 64) * 64;
+        let width = Math.ceil(Math.random * 400 / 64) * 64;
+        let Ele = document.getElementById("math");
+        Ele.innerHTML = ''
+        Ele.height = height;
+        Ele.width = width;
+    }
     // get text lines in HTML page
     function GetCoords() {
         let Ele = document.getElementById("math")

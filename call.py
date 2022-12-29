@@ -130,6 +130,11 @@ def preprocess(bp, line):
     gt_line = gt_line.lstrip('%')
     gt_line = gt_line.split('%')[0]
     gt_line = gt_line.split(r'\label')[0]
+    gt_line = re.sub(r'\$', r" ", gt_line)
+    gt_line = re.sub(r'\\fbox', r"", gt_line)
+    gt_line = re.sub(
+        r'((\\hskip)|(\\mkern)|(\\kern)|(\\raise))[0-9\.\-\s]*(true)*\s*((cm)|(em)|(pt)|(ex)|(mm)|(in)|(mu))',
+        '', gt_line)
     # gt_line = bp.replace_inner_tags(r'\rm\bf', [r'\mathrm', r'\textbf'], gt_line)
     # gt_line = bp.replace_inner_tags(r'\bf\rm', r'\mathrm', gt_line)
     gt_line = bp.replace_inner_tags(r'\rm', r'\mathrm', gt_line)
@@ -137,17 +142,19 @@ def preprocess(bp, line):
     # gt_line = bp.replace_inner_tags(r'\bf', r'\textbf', gt_line)
     # gt_line = re.sub(r'(hbox|mbox)', r'mathrm', gt_line)
     # gt_line = re.sub(r'\\~', r"", gt_line)
-    gt_line = re.sub(r'\$', r" ", gt_line)
     gt_line = re.sub(r'(textup)', r'mathrm', gt_line)
     gt_line = gt_line.replace(r'\hspace*', r'\hspace')
+    gt_line = gt_line.replace(r'\footnotesize', r'\scriptsize')
     gt_line = re.sub(r'\\relax', r"", gt_line)
     gt_line = re.sub(r'\\protect', r"", gt_line)
+    gt_line = re.sub(r'\\smallskip', r"", gt_line)
     gt_line = re.sub(r'\\sp', r"^", gt_line)
     gt_line = re.sub(r'\\sb', r"_", gt_line)
     gt_line = re.sub(r'\\ddag(?!\w)', r'\\ddagger', gt_line)
     gt_line = re.sub(r'\\dag(?!\w)', r"\\dagger", gt_line)
     gt_line = re.sub(r'\\boldmath', r"\\mathbf", gt_line)
-    gt_line = re.sub(r'(?<!\\)\\([A-Za-z])(?=\\|\s)', r'\g<1>', gt_line)
+    gt_line = re.sub(r'(?<!\\)\\([A-Za-z])(?=\\|\s|_|(|)|\{', r'\g<1>',
+                     gt_line)
     gt_line = re.sub(r'\\>', ' ', gt_line)
 
     render_line = gt_line

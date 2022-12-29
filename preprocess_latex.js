@@ -290,7 +290,7 @@ groupTypes.font = function(group, options) {
     if (font == "mbox" || font == "hbox") {
         font = "mathrm";
     }
-    if (font !== 'noalign' && font !== 'vspace' && font != 'hspace') {
+    if (font !== 'noalign' && font !== 'vspace' && font != 'hspace' && font != 'raisebox') {
         norm_str = norm_str + "\\" + font + " ";
         if (group.value.body !== undefined) {
             buildGroup(group.value.body, options.withFont(font));   
@@ -340,8 +340,8 @@ groupTypes.underline = function(group, options) {
 };
 
 groupTypes.rule = function(group) {
-    norm_str = norm_str + "\\rule { "+group.value.width.number+" "+group.value.width.unit+"  } { "+group.value.height.number+" "+group.value.height.unit+ " } ";
-
+    // norm_str = norm_str + "\\rule { "+group.value.width.number+" "+group.value.width.unit+"  } { "+group.value.height.number+" "+group.value.height.unit+ " } ";
+    norm_str = norm_str;
 };
 
 groupTypes.llap = function(group, options) {
