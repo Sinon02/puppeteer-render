@@ -13,7 +13,7 @@ class BracketParser(object):
         self.match_pairs = {'{': '}', '[': ']', '(': ')'}
 
     def check_match(self, open_bracket, close_bracket):
-        if not open_bracket in self.match_pairs:
+        if open_bracket not in self.match_pairs:
             return False
         return self.match_pairs[open_bracket] == close_bracket
 
