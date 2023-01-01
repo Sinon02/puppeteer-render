@@ -54,7 +54,7 @@ async function RenderFormula(page, data) {
     }
     await page.evaluate((formula) => {
       window.renderComplete = false
-      if(formula) {
+      if (formula) {
         ChangeFormula(formula);
       } else {
         RandomBlank();
@@ -93,6 +93,10 @@ app.post('/render', async (req, res) => {
         cluster.queue(clusterData);
         clusterData = [];
       }
+    }
+    if (clusterData.length > 0) {
+      cluster.queue(clusterData);
+      clusterData = [];
     }
     await cluster.idle();
     var endTime = performance.now()
