@@ -195,10 +195,12 @@ groupTypes.array = function(group, options) {
                 row[0].value = row[0].value.slice(1);
             }
             out = row.map(function(cell) {
-                buildGroup(cell, options);
-                norm_str = norm_str + "& ";
+                if (typeof cell !== 'undefined' && cell.value.length > 0) {
+                    buildGroup(cell, options);
+                    norm_str = norm_str + "& ";
+                }
             });
-            norm_str = norm_str.substring(0, norm_str.length-2) + "\\\\ ";
+            norm_str = norm_str.replace(/&\s*$/g, '') + "\\\\ ";
         }
     }); 
 
