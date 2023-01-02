@@ -54,7 +54,7 @@ async function RenderFormula(page, data) {
     }
     await page.evaluate((formula) => {
       window.renderComplete = false
-      if (formula) {
+      if (!(/^\$\s*\$$/.test(formula))) {
         ChangeFormula(formula);
       } else {
         RandomBlank();
