@@ -2,26 +2,26 @@ var katex = require("./third_party/katex/katex.js")
 options = require("./third_party/katex/src/Options.js")
 
 
-function ParseFormula(line){
+function ParseFormula(line) {
     // a = line
     global_str = ""
     norm_str = ""
     line = line.split('\\~').join(' ');
-    
 
-    if (line.indexOf("matrix") == -1 && line.indexOf("cases")==-1 &&
-        line.indexOf("array")==-1 && line.indexOf("begin")==-1)  {
+
+    if (line.indexOf("matrix") == -1 && line.indexOf("cases") == -1 &&
+        line.indexOf("array") == -1 && line.indexOf("begin") == -1) {
         for (var i = 0; i < 300; i++) {
             line = line.replace(/\\\\/, "\\,");
         }
     }
-    
+
 
     line = line + " "
     // global_str is tokenized version (build in parser.js)
     // norm_str is normalized version build by renderer below.
     try {
-    
+
 
         if (process.argv[2] == "tokenize") {
             var tree = katex.__parse(line, {});
@@ -34,7 +34,7 @@ function ParseFormula(line){
             // }
 
             var tree = katex.__parse(line, {});
-            buildExpression(tree, new options({}));            
+            buildExpression(tree, new options({}));
             for (var i = 0; i < 300; ++i) {
                 norm_str = norm_str.replace('SSSSSS', '$');
                 norm_str = norm_str.replace(' S S S S S S', '$');
@@ -56,9 +56,9 @@ norm_str = ""
 
 var groupTypes = {};
 
-groupTypes.mathord = function(group, options) {
-    if (options.font == "mathrm"){
-        for (i = 0; i < group.value.length; ++i ) {
+groupTypes.mathord = function (group, options) {
+    if (options.font == "mathrm") {
+        for (i = 0; i < group.value.length; ++i) {
             if (group.value[i] == " ") {
                 norm_str = norm_str + group.value[i] + "\; ";
             } else {
@@ -70,51 +70,51 @@ groupTypes.mathord = function(group, options) {
     }
 };
 
-groupTypes.textord = function(group, options) {
+groupTypes.textord = function (group, options) {
     norm_str = norm_str + group.value + " ";
 };
 
-groupTypes.bin = function(group) {
+groupTypes.bin = function (group) {
     norm_str = norm_str + group.value + " ";
 };
 
-groupTypes.rel = function(group) {
+groupTypes.rel = function (group) {
     norm_str = norm_str + group.value + " ";
 };
 
-groupTypes.open = function(group) {
+groupTypes.open = function (group) {
     norm_str = norm_str + group.value + " ";
 };
 
-groupTypes.close = function(group) {
+groupTypes.close = function (group) {
     norm_str = norm_str + group.value + " ";
 };
 
-groupTypes.inner = function(group) {
+groupTypes.inner = function (group) {
     norm_str = norm_str + group.value + " ";
 };
 
-groupTypes.punct = function(group) {
+groupTypes.punct = function (group) {
     norm_str = norm_str + group.value + " ";
 };
 
-groupTypes.ordgroup = function(group, options) {
+groupTypes.ordgroup = function (group, options) {
     norm_str = norm_str + "{ ";
 
     buildExpression(group.value, options);
 
-    norm_str = norm_str +  "} ";
+    norm_str = norm_str + "} ";
 };
 
-groupTypes.text = function(group, options) {
-    
+groupTypes.text = function (group, options) {
+
     norm_str = norm_str + "\\mathrm { ";
 
     buildExpression(group.value.body, options);
     norm_str = norm_str + "} ";
 };
 
-groupTypes.color = function(group, options) {
+groupTypes.color = function (group, options) {
     var inner = buildExpression(group.value.value, options);
 
     var node = new mathMLTree.MathNode("mstyle", inner);
@@ -124,7 +124,7 @@ groupTypes.color = function(group, options) {
     return node;
 };
 
-groupTypes.supsub = function(group, options) {
+groupTypes.supsub = function (group, options) {
     buildGroup(group.value.base, options);
 
     if (group.value.sub) {
@@ -136,7 +136,7 @@ groupTypes.supsub = function(group, options) {
         } else {
             buildGroup(group.value.sub, options);
         }
-        
+
     }
 
     if (group.value.sup) {
@@ -152,7 +152,7 @@ groupTypes.supsub = function(group, options) {
 
 };
 
-groupTypes.genfrac = function(group, options) {
+groupTypes.genfrac = function (group, options) {
     if (!group.value.hasBarLine) {
         norm_str = norm_str + "\\binom ";
     } else {
@@ -163,14 +163,14 @@ groupTypes.genfrac = function(group, options) {
 
 };
 
-groupTypes.array = function(group, options) {
-    
+groupTypes.array = function (group, options) {
+
 
     if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases") {
         norm_str = norm_str + "\\begin{" + "array" + "} ";
         norm_str = norm_str + "{ ";
         if (group.value.cols) {
-            group.value.cols.map(function(start) {
+            group.value.cols.map(function (start) {
                 if (start) {
                     if (start.type == "align") {
                         norm_str = norm_str + start.align + " ";
@@ -180,38 +180,37 @@ groupTypes.array = function(group, options) {
                 }
             });
         } else {
-            group.value.body[0].map(function(start) {
+            group.value.body[0].map(function (start) {
                 norm_str = norm_str + "c ";
-            } );
+            });
         }
         norm_str = norm_str + "} ";
     } else {
         norm_str = norm_str + "\\begin{" + group.value.style + "} ";
     }
-    group.value.body.map(function(row) {
+    group.value.body.map(function (row) {
         if (row.length > 1 || row[0].value.length > 0) {
             if (row[0].value[0] && row[0].value[0].value == "\\hline") {
                 norm_str = norm_str + "\\hline ";
                 row[0].value = row[0].value.slice(1);
             }
-            out = row.map(function(cell) {
-                if (typeof cell !== 'undefined' && cell.value.length > 0) {
+            if (!(row.length === 0 || row.length === 1 && (typeof row[0] === 'undefined' || row[0].value.length === 0))) {
+                out = row.map(function (cell) {
                     buildGroup(cell, options);
                     norm_str = norm_str + "& ";
-                }
-            });
+                });
+            }
             norm_str = norm_str.replace(/&\s*$/g, '') + "\\\\ ";
         }
-    }); 
-
+    });
     if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases") {
-        norm_str = norm_str.replace( /\\\\\s$/g, '' ) + "\\end{" + "array" + "} ";
+        norm_str = norm_str.replace(/\\\\\s$/g, '') + "\\end{" + "array" + "} ";
     } else {
         norm_str = norm_str + "\\end{" + group.value.style + "} ";
     }
 };
 
-groupTypes.sqrt = function(group, options) {
+groupTypes.sqrt = function (group, options) {
     var node;
     if (group.value.index) {
         norm_str = norm_str + "\\sqrt [ " + group.value.index + " ] ";
@@ -222,7 +221,7 @@ groupTypes.sqrt = function(group, options) {
     }
 };
 
-groupTypes.leftright = function(group, options) {
+groupTypes.leftright = function (group, options) {
 
 
 
@@ -231,7 +230,7 @@ groupTypes.leftright = function(group, options) {
     norm_str = norm_str + "\\right" + group.value.right + " ";
 };
 
-groupTypes.accent = function(group, options) {
+groupTypes.accent = function (group, options) {
     if (group.value.base.type != 'ordgroup') {
         norm_str = norm_str + group.value.accent + " { ";
         buildGroup(group.value.base, options);
@@ -242,7 +241,7 @@ groupTypes.accent = function(group, options) {
     }
 };
 
-groupTypes.spacing = function(group) {
+groupTypes.spacing = function (group) {
     var node;
     if (group.value == " ") {
         norm_str = norm_str + "~ ";
@@ -252,12 +251,12 @@ groupTypes.spacing = function(group) {
     return node;
 };
 
-groupTypes.op = function(group) {
+groupTypes.op = function (group) {
     var node;
 
     // TODO(emily): handle big operators using the `largeop` attribute
-    
-    
+
+
     if (group.value.symbol) {
         // This is a symbol. Just add the symbol.
         if (group.value.limits == true) {
@@ -271,14 +270,14 @@ groupTypes.op = function(group) {
         } else {
             norm_str = norm_str + "\\\operatorname* { ";
         }
-        for (i = 1; i < group.value.body.length; ++i ) {
+        for (i = 1; i < group.value.body.length; ++i) {
             norm_str = norm_str + group.value.body[i] + " ";
         }
         norm_str = norm_str + "} ";
     }
 };
 
-groupTypes.katex = function(group) {
+groupTypes.katex = function (group) {
     var node = new mathMLTree.MathNode(
         "mtext", [new mathMLTree.TextNode("KaTeX")]);
 
@@ -287,7 +286,7 @@ groupTypes.katex = function(group) {
 
 
 
-groupTypes.font = function(group, options) {
+groupTypes.font = function (group, options) {
     var font = group.value.font;
     if (font == "mbox" || font == "hbox") {
         font = "mathrm";
@@ -295,26 +294,26 @@ groupTypes.font = function(group, options) {
     if (font !== 'noalign' && font !== 'vspace' && font != 'hspace' && font != 'raisebox') {
         norm_str = norm_str + "\\" + font + " ";
         if (group.value.body !== undefined) {
-            buildGroup(group.value.body, options.withFont(font));   
+            buildGroup(group.value.body, options.withFont(font));
         }
-    }  
+    }
 };
 
-groupTypes.delimsizing = function(group) {
+groupTypes.delimsizing = function (group) {
     var children = [];
     norm_str = norm_str + group.value.funcName + " " + group.value.value + " ";
 };
 
-groupTypes.styling = function(group, options) {
+groupTypes.styling = function (group, options) {
     norm_str = norm_str + " " + group.value.original + " ";
     buildExpression(group.value.value, options);
 
 };
 
-groupTypes.sizing = function(group, options) {
+groupTypes.sizing = function (group, options) {
 
     if (group.value.original == "\\rm") {
-        norm_str = norm_str + "\\mathrm { "; 
+        norm_str = norm_str + "\\mathrm { ";
         buildExpression(group.value.value, options.withFont("mathrm"));
         norm_str = norm_str + "} ";
     } else {
@@ -323,16 +322,16 @@ groupTypes.sizing = function(group, options) {
     }
 };
 
-groupTypes.overline = function(group, options) {
+groupTypes.overline = function (group, options) {
     norm_str = norm_str + "\\overline { ";
-    
+
     buildGroup(group.value.body, options);
     norm_str = norm_str + "} ";
     norm_str = norm_str;
 
 };
 
-groupTypes.underline = function(group, options) {
+groupTypes.underline = function (group, options) {
     norm_str = norm_str + "\\underline { ";
     buildGroup(group.value.body, options);
     norm_str = norm_str + "} ";
@@ -341,23 +340,23 @@ groupTypes.underline = function(group, options) {
 
 };
 
-groupTypes.rule = function(group) {
+groupTypes.rule = function (group) {
     // norm_str = norm_str + "\\rule { "+group.value.width.number+" "+group.value.width.unit+"  } { "+group.value.height.number+" "+group.value.height.unit+ " } ";
     norm_str = norm_str;
 };
 
-groupTypes.llap = function(group, options) {
+groupTypes.llap = function (group, options) {
     norm_str = norm_str + "\\llap ";
     buildGroup(group.value.body, options);
 };
 
-groupTypes.rlap = function(group, options) {
+groupTypes.rlap = function (group, options) {
     norm_str = norm_str + "\\rlap ";
     buildGroup(group.value.body, options);
 
 };
 
-groupTypes.phantom = function(group, options, prev) {
+groupTypes.phantom = function (group, options, prev) {
     norm_str = norm_str + "\\phantom { ";
     buildExpression(group.value.value, options);
     norm_str = norm_str + "} ";
@@ -369,7 +368,7 @@ groupTypes.phantom = function(group, options, prev) {
  * MathML nodes. A little simpler than the HTML version because we don't do any
  * previous-node handling.
  */
-var buildExpression = function(expression, options) {
+var buildExpression = function (expression, options) {
     var groups = [];
     for (var i = 0; i < expression.length; i++) {
         var group = expression[i];
@@ -383,7 +382,7 @@ var buildExpression = function(expression, options) {
  * Takes a group from the parser and calls the appropriate groupTypes function
  * on it to produce a MathML node.
  */
-var buildGroup = function(group, options) {
+var buildGroup = function (group, options) {
     if (groupTypes[group.type]) {
         groupTypes[group.type](group, options);
     } else {
