@@ -156,6 +156,7 @@ def preprocess(bp, line):
         r'(?<!\\)\\([A-Za-z])(?=\\|\s|_|\^|\(|\)|\{|\}|\+|\-|\/|\*)', r'\g<1>',
         gt_line)
     gt_line = re.sub(r'\\hline\s*\\hline', r'\\hline', gt_line)
+    gt_line = re.sub(r'(\\\(|\\\))', r"", gt_line)
     gt_line = re.sub(r'\\>', ' ', gt_line)
 
     render_line = gt_line
