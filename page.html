@@ -25,7 +25,7 @@
 <script type="text/javascript">
     function ChangeFormula(new_formula) {
         let Ele = document.getElementById("math");
-        let re = /\\operatorname\*?\s*\{[^\}]*\}/g
+        let re = /((\\operatorname\*?)|(\\textrm))\s*\{[^\}]*\}/g
         let matches = new_formula.match(re)
         for (let i = 0; i < matches.length; i++) {
             let oldSub = matches[i];
