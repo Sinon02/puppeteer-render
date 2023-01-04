@@ -50,11 +50,12 @@ async function RenderFormula(page, data) {
     })
     if (!mathJaxLoaded) {
       await page.goto('file:///data/sinon/puppeteer-render/page.html');
+      // await page.goto('file:///C:/Users/Sinon/Desktop/puppeteer-render/page.html');
       // console.log('MathJax Reloaded')
     }
     await page.evaluate((formula) => {
       window.renderComplete = false
-      if (!(/^\$\s*\$$/.test(formula))) {
+      if (!(formula === null || formula.match(/^\s*$/) !== null)) {
         ChangeFormula(formula);
       } else {
         RandomBlank();
@@ -63,10 +64,17 @@ async function RenderFormula(page, data) {
     await page.waitForFunction(() => {
       return window.renderComplete
     });
-    const math = await page.$("#math")
-    await math.screenshot({ path: savePath });
+    if (!(formula === null || formula.match(/^\s*$/) !== null)) {
+      const math = await page.$("#math")
+      await math.screenshot({ path: savePath });
+    } else {
+      let height = Math.floor((Math.random() * (800 - 256) + 256) / 64) * 64;
+      let width = Math.floor((Math.random() * (1600 - 256) + 256) / 64) * 64;
+      page.setViewport({ 'width': width, 'height': height });
+      await page.screenshot({ path: savePath });
+    }
   } catch (error) {
-    return
+    // console.log(error)
   }
 }
 

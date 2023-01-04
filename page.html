@@ -19,7 +19,7 @@
 
 <body style="margin:0;top:0;left:0;">
     <div id="math"
-        style="white-space:pre-wrap;position:absolute;display:inline;margin:0;top:0;left:0;font-size:100%;font-family:'Times New Roman','SimSun';">
+        style="white-space:pre-wrap;position:absolute;display:inline;margin:0;top:0;left:0;font-size:200%;font-family:'Times New Roman','SimSun';">
     </div>
 </body>
 <script type="text/javascript">
@@ -31,12 +31,8 @@
         });
     }
     function RandomBlank() {
-        let height = Math.ceil(Math.random() * 600 / 64) * 64;
-        let width = Math.ceil(Math.random * 400 / 64) * 64;
         let Ele = document.getElementById("math");
         Ele.innerHTML = ''
-        Ele.height = height;
-        Ele.width = width;
         window.renderComplete = true;
     }
     // get text lines in HTML page
