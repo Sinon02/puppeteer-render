@@ -25,130 +25,24 @@
 <script type="text/javascript">
     function ChangeFormula(new_formula) {
         let Ele = document.getElementById("math");
+        let re = /\\operatorname\*?\s*\{[^\}]*\}/g
+        let matches = new_formula.match(re)
+        for (let i = 0; i < matches.length; i++) {
+            let oldSub = matches[i];
+            let newSub = oldSub.replaceAll(' ', '').replace('{', ' { ').replace('}', ' }');
+            new_formula = new_formula.replace(oldSub, newSub);
+        }
         Ele.innerHTML = '$' + new_formula + '$';
         MathJax.Hub.Queue(['Typeset', MathJax.Hub, Ele], () => {
             window.renderComplete = true;
         });
     }
+
     function RandomBlank() {
         let Ele = document.getElementById("math");
         Ele.innerHTML = ''
         window.renderComplete = true;
     }
-    // get text lines in HTML page
-    function GetCoords() {
-        let Ele = document.getElementById("math")
-        let nodes = Ele.childNodes
-
-        function dealText(sNode) {
-            let split_s = new Array()
-            let split_coords = new Array()
-            let s = sNode.nodeValue
-            if (s === '\\n' || s.replace(/\\s/g, "").length === 0) {
-                return [split_s, split_coords]
-            }
-            let start = 0
-            let range = document.createRange()
-            range.setStart(sNode, 0)
-            for (let i = 0; i !== sNode.length; i++) {
-                range.setEnd(sNode, i + 1)
-                let rects = range.getClientRects()
-                // if range contains more than one text line
-                if (rects.length > 1) {
-                    let rect = rects[0]
-                    split_s.push(s.substring(start, i))
-                    split_coords.push({
-                        "x": rect.x,
-                        "y": rect.y,
-                        "width": rect.width,
-                        "height": rect.height
-                    })
-                    start = i
-                    range.setStart(sNode, start)
-                }
-            }
-            // add the last (or the only first) text line to result
-            if (split_s.length === 0) {
-                split_s.push(s)
-                let rects = range.getClientRects()
-                let rect = rects[0]
-                split_coords.push({
-                    "x": rect.x,
-                    "y": rect.y,
-                    "width": rect.width,
-                    "height": rect.height
-                })
-            } else if (start > 0 && start < sNode.length) {
-                split_s.push(s.substring(start, sNode.length))
-                range.setStart(sNode, start)
-                range.setEnd(sNode, sNode.length)
-                let rects = range.getClientRects()
-                let rect = rects[0]
-                split_coords.push({
-                    "x": rect.x,
-                    "y": rect.y,
-                    "width": rect.width,
-                    "height": rect.height
-                })
-            }
-            return [split_s, split_coords]
-        }
-        let all_split_s = Array()
-        let all_split_coords = Array()
-        let formula_coords = Array()
-        for (let i = 0; i != nodes.length; i++) {
-            let node = nodes[i]
-            if (node.nodeName === "#text") {
-                // split text region to textlines
-                let [split_s, split_coords] = dealText(node)
-                all_split_s = all_split_s.concat(split_s)
-                all_split_coords = all_split_coords.concat(split_coords)
-                // Todo: Change From MathJax v3 to MathJax v2
-            }
-        }
-
-        let mathNodes = document.getElementsByClassName("math")
-        for (let i = 0; i != mathNodes.length; i++) {
-            let mathNode = mathNodes[i]
-            let rect = mathNode.getClientRects()[0]
-            formula_coords.push({
-                "x": rect.x,
-                "y": rect.y,
-                "width": rect.width,
-                "height": rect.height
-            })
-        }
-
-        window.backend.getCoords([all_split_s, all_split_coords, formula_coords])
-    }
-
-    function GetSize() {
-        // get the page size
-        let element = document.getElementById("math")
-        let width = element.offsetWidth
-        let height = element.offsetHeight
-        window.backend.getSize([width, height])
-        MathJax.Hub.Startup.signal.Post("GetSize End")
-    }
-
-    function GetMath() {
-        // get all math formulas in page
-        let element = document.getElementById("math")
-        // Todo: Change From MathJax v3 to MathJax v2
-        let formula_nodes = MathJax.Hub.getAllJax(element);
-        let formulas = Array()
-        for (let i = 0; i != formula_nodes.length; i++) {
-            formulas.push(formula_nodes[i].originalText)
-        }
-        window.backend.getMath([formulas])
-        MathJax.Hub.Startup.signal.Post("GetMath End")
-    }
-    // window.onload = function () {
-    //     // use QWebChannel to transfer data from frontend to backend
-    //     new QWebChannel(qt.webChannelTransport, function (channel) {
-    //         window.backend = channel.objects.backend
-    //     })
-    // }
 </script>
 <script type="text/x-mathjax-config">
     // http://docs.mathjax.org/en/v2.7-latest/options/output-processors/SVG.html
