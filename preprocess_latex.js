@@ -291,11 +291,13 @@ groupTypes.font = function (group, options) {
     if (font == "mbox" || font == "hbox") {
         font = "mathrm";
     }
-    if (font !== 'noalign' && font !== 'vspace' && font != 'hspace' && font != 'raisebox') {
+    if (font !== 'noalign' && font !== 'vspace' && font !== 'hspace' && font !== 'raisebox') {
         norm_str = norm_str + "\\" + font + " ";
         if (group.value.body !== undefined) {
             buildGroup(group.value.body, options.withFont(font));
         }
+    } else if (font === 'hspace') {
+        norm_str = norm_str + "~ ";
     }
 };
 
