@@ -81,16 +81,17 @@ class BracketParser(object):
                 need_pad = False
                 cur_seq = seq[all_occur[idx]:int(max(0, all_occur[idx + 1]))]
 
-            res, subseq = self.check_brackets(
-                cur_seq, open_brackets=['{', '('], close_brackets=['}', ')'])
+            res, subseq = self.check_brackets(cur_seq,
+                                              open_brackets=['{', '('],
+                                              close_brackets=['}', ')'])
             old_tag_exist = old_tag in cur_seq
 
             if need_pad:
                 if res:
                     cur_seq = re.sub(
-                        f'\\{subseq[0]}?' + old_tag.replace('\\',
-                                                            '\\\\') + '\s*',
-                        '{' + '{'.join(new_tag).replace('\\', '\\\\'), cur_seq)
+                        f'\\{subseq[0]}?' + old_tag.replace('\\', '\\\\') +
+                        '\s*', '{' + '{'.join(new_tag).replace('\\', '\\\\'),
+                        cur_seq)
 
                     edit_subseq = subseq + '}' * len(new_tag)
                     cur_seq = cur_seq.replace(subseq, edit_subseq)
@@ -99,8 +100,8 @@ class BracketParser(object):
                 res, render_item = self.check_brackets(subseq[1:-1])
                 edit_subseq = re.sub(
                     f'\\{subseq[0]}?' + old_tag.replace('\\', '\\\\') + '\s*',
-                    f'{subseq[0]}' + '{'.join(new_tag).replace(
-                        '\\', '\\\\') + "{", subseq)
+                    f'{subseq[0]}' + '{'.join(new_tag).replace('\\', '\\\\') +
+                    "{", subseq)
 
                 if res:
                     striped_render_item = re.sub(r'^{', '', render_item)
@@ -153,11 +154,12 @@ def preprocess(bp, line):
     gt_line = re.sub(r'\\dag(?!\w)', r"\\dagger", gt_line)
     gt_line = re.sub(r'\\boldmath', r"\\mathbf", gt_line)
     gt_line = re.sub(
-        r'(?<!\\)\\([A-Za-z\+\-\*\/])(?=\\|\s|_|\^|\(|\)|\{|\}|\+|\-|\/|\*)', r' \g<1> ',
-        gt_line)
+        r'(?<!\\)\\([A-Za-z\+\-\*\/])(?=\\|\s|_|\^|\(|\)|\{|\}|\+|\-|\/|\*|=|\||[0-9])',
+        r' \g<1> ', gt_line)
     gt_line = re.sub(r'\\hline\s*\\hline', r'\\hline', gt_line)
     gt_line = re.sub(r'((?<!\\)\\\(|\\\))', r"", gt_line)
     gt_line = re.sub(r'\\null', r"", gt_line)
+    gt_line = re.sub(r'\\mathaccent', r"", gt_line)
     gt_line = re.sub(r'\\>', ' ', gt_line)
 
     render_line = gt_line
@@ -171,8 +173,8 @@ def preprocess(bp, line):
 
 
 if __name__ == "__main__":
-    save_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), 'image_rendered')
+    save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            'image_rendered')
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
@@ -194,10 +196,9 @@ if __name__ == "__main__":
                 'dir': save_dir,
                 'prefix': i
             }
-            resp = requests.post(
-                url='http://localhost:8080/render',
-                headers=headers,
-                data=json.dumps(data))
+            resp = requests.post(url='http://localhost:8080/render',
+                                 headers=headers,
+                                 data=json.dumps(data))
             try:
                 data = resp.json()
                 print(data['msg'])
