@@ -158,6 +158,7 @@ def preprocess(bp, line):
         r' \g<1> ', gt_line)
     gt_line = re.sub(r'\\hline\s*\\hline', r'\\hline', gt_line)
     gt_line = re.sub(r'((?<!\\)\\\(|\\\))', r"", gt_line)
+    gt_line = re.sub(r'(\\\[|\\\])', r"", gt_line)
     gt_line = re.sub(r'\\null', r"", gt_line)
     gt_line = re.sub(r'\\mathaccent', r"", gt_line)
     gt_line = re.sub(r'\\>', ' ', gt_line)
