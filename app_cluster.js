@@ -14,7 +14,7 @@ var cluster;
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 10,
-    monitor: true,
+    monitor: false,
     timeout: 999999,
     puppeteerOptions: {
       headless: true,
@@ -64,17 +64,22 @@ async function RenderFormula(page, data) {
     await page.waitForFunction(() => {
       return window.renderComplete
     });
+    let height = Math.floor((Math.random() * (800 - 256) + 256) / 64) * 64;
+    let width = Math.floor((Math.random() * (1600 - 256) + 256) / 64) * 64;
     if (!(formula === null || formula.match(/^\s*$/) !== null)) {
       const math = await page.$("#math")
-      await math.screenshot({ path: savePath });
+      try {
+        await math.screenshot({ path: savePath });
+      } catch (error) {
+        page.setViewport({ 'width': width, 'height': height });
+        await page.screenshot({ path: savePath });
+      }
     } else {
-      let height = Math.floor((Math.random() * (800 - 256) + 256) / 64) * 64;
-      let width = Math.floor((Math.random() * (1600 - 256) + 256) / 64) * 64;
       page.setViewport({ 'width': width, 'height': height });
       await page.screenshot({ path: savePath });
     }
   } catch (error) {
-    // console.log(error)
+    console.log(error)
   }
 }
 
