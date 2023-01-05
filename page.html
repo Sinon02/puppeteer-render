@@ -63,7 +63,18 @@
                 availableFonts: [],
                 preferredFont: null,
                 webFont: "TeX"
+            },
+            TeX: {
+                noUndefined: {
+                    disabled: true
+                },
+                noErrors: {
+                    disabled: true
+                }
             }          
+        });
+        MathJax.Hub.Register.MessageHook("TeX Jax - parse error",function (message) {
+            RandomBlank();
         });
         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
     </script>
