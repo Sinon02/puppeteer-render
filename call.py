@@ -150,8 +150,8 @@ def preprocess(bp, line):
     gt_line = re.sub(r'\\smallskip', r"", gt_line)
     gt_line = re.sub(r'\\sp', r"^", gt_line)
     gt_line = re.sub(r'\\sb', r"_", gt_line)
-    gt_line = re.sub(r'\\ddag(?!\w)', r'\\ddagger', gt_line)
-    gt_line = re.sub(r'\\dag(?!\w)', r"\\dagger", gt_line)
+    gt_line = re.sub(r'\\ddag(?![a-zA-Z])', r'\\ddagger', gt_line)
+    gt_line = re.sub(r'\\dag(?![a-zA-Z])', r"\\dagger", gt_line)
     gt_line = re.sub(r'\\boldmath', r"\\mathbf", gt_line)
     gt_line = re.sub(
         r'(?<!\\)\\([A-Za-z\+\-\*\/])(?=\\|\s|_|\^|\(|\)|\{|\}|\+|\-|\/|\*|=|\||[0-9]|\,)',
