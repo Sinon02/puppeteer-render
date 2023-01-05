@@ -27,10 +27,12 @@
         let Ele = document.getElementById("math");
         let re = /((\\operatorname\*?)|(\\textrm))\s*\{[^\}]*\}/g
         let matches = new_formula.match(re)
-        for (let i = 0; i < matches.length; i++) {
-            let oldSub = matches[i];
-            let newSub = oldSub.replaceAll(' ', '').replace('{', ' { ').replace('}', ' }');
-            new_formula = new_formula.replace(oldSub, newSub);
+        if (matches != null) {
+            for (let i = 0; i < matches.length; i++) {
+                let oldSub = matches[i];
+                let newSub = oldSub.replaceAll(' ', '').replace('{', ' { ').replace('}', ' }');
+                new_formula = new_formula.replace(oldSub, newSub);
+            }
         }
         Ele.innerHTML = '$' + new_formula + '$';
         MathJax.Hub.Queue(['Typeset', MathJax.Hub, Ele], () => {
