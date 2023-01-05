@@ -65,6 +65,8 @@ groupTypes.mathord = function (group, options) {
                 norm_str = norm_str + group.value[i] + " ";
             }
         }
+    } else if (group.value === "\\sl" || group.value === "\\tr" || group.value === "\\cite") {
+        // pass
     } else {
         norm_str = norm_str + group.value + " ";
     }
