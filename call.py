@@ -180,12 +180,16 @@ def preprocess(bp, line):
 
 if __name__ == "__main__":
     save_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), 'image_rendered')
+        os.path.dirname(os.path.abspath(__file__)),
+        '../formula_images_processed')
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    input_file = './im2latex_formulas.lst'
-    output_file = './im2latex_formulas.norm.lst'
+    input_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), '../im2latex_formulas.lst')
+    output_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        '../im2latex_formulas.norm.lst')
     with open(input_file, encoding='ISO-8859-1', newline="\n") as fin:
         formulas = fin.readlines()
         print(len(formulas))
