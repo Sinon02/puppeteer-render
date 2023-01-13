@@ -43,9 +43,7 @@ var cluster;
 
 async function RenderFormula(page, data) {
   try {
-    let formula = data.formula
-    // remove non-ascii
-    formula = formula.replace(/[^\x00-\x7F]/g, "");
+    const formula = data.formula
     const savePath = data.savePath
     const mathJaxLoaded = await page.evaluate(() => {
       return !!(typeof MathJax !== 'undefined') // !! converts anything to boolean
@@ -100,7 +98,9 @@ app.post('/render', async (req, res) => {
     let normFormulas = []
     for (let i = 0; i < formulas.length; i++) {
       let formula = formulas[i];
+      // remove non-ascii
       formula = ParseFormula(formula);
+      formula = formula.replace(/[^\x00-\x7F]/g, "");
       normFormulas.push(formula);
       let savePath = dir + '//' + (prefix + i).toString() + '.png';
       let data = { "formula": formula, "savePath": savePath };

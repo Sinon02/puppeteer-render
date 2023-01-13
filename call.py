@@ -181,18 +181,6 @@ def preprocess(bp, line):
     render_line = render_line.strip()
     return gt_line, render_line
 
-def is_ascii(s):
-    """Check if the characters in string s are in ASCII, U+0-U+7F."""
-    return len(s) == len(s.encode())
-
-def only_retain_ascii(formula):
-    tokens = formula.strip().split()
-    tokens_out = []
-    for token in tokens:
-        if is_ascii(token):
-            tokens_out.append(token)
-    return ' '.join(tokens_out)
-
 if __name__ == "__main__":
     save_dir = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
@@ -229,7 +217,6 @@ if __name__ == "__main__":
                 data = resp.json()
                 print(data['msg'])
                 norm_formulas = data['formulas']
-                norm_formulas = [only_retain_ascii(formula) for formula in formulas]
                 f.write('\n'.join(norm_formulas) + '\n')
             except Exception:
                 continue
