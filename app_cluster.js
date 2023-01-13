@@ -64,6 +64,7 @@ async function RenderFormula(page, data) {
     await page.waitForFunction(() => {
       return window.renderComplete
     });
+    await page.waitForTimeout(500);
     let height = Math.floor((Math.random() * (800 - 256) + 256) / 64) * 64;
     let width = Math.floor((Math.random() * (1600 - 256) + 256) / 64) * 64;
     if (!(formula === null || formula.match(/^\s*$/) !== null)) {
