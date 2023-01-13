@@ -228,8 +228,8 @@ if __name__ == "__main__":
             try:
                 data = resp.json()
                 print(data['msg'])
-                formulas = data['formulas']
-                formulas = [only_retain_ascii(formula) for formula in formulas]
-                f.write('\n'.join(data['formulas']) + '\n')
+                norm_formulas = data['formulas']
+                norm_formulas = [only_retain_ascii(formula) for formula in formulas]
+                f.write('\n'.join(norm_formulas) + '\n')
             except Exception:
                 continue
