@@ -43,7 +43,9 @@ var cluster;
 
 async function RenderFormula(page, data) {
   try {
-    const formula = data.formula
+    let formula = data.formula
+    // remove non-ascii
+    formula = formula.replace(/[^\x00-\x7F]/g, "");
     const savePath = data.savePath
     const mathJaxLoaded = await page.evaluate(() => {
       return !!(typeof MathJax !== 'undefined') // !! converts anything to boolean
