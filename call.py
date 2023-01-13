@@ -169,8 +169,12 @@ def preprocess(bp, line):
     gt_line = re.sub(r'\\>', ' ', gt_line)
 
     render_line = gt_line
-    render_line = re.sub(r'<', r'\\lt ', render_line)
-    render_line = re.sub(r'>', r'\\gt ', render_line)
+    render_line = re.sub(r'\\left<', r'\\left< ', render_line)
+    render_line = re.sub(r'\\left>', r'\\left> ', render_line)
+    render_line = re.sub(r'\\right>', r' \\right>', render_line)
+    render_line = re.sub(r'\\right<', r' \\right< ', render_line)
+    render_line = re.sub(r'(?<!left)(?<!right)<', r' < ', render_line)
+    render_line = re.sub(r'(?<!left)(?<!right)>', r' > ', render_line)
     render_line = render_line.replace(r'\slash', '/')
 
     gt_line = gt_line.strip()
