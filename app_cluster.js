@@ -92,17 +92,18 @@ app.post('/render', async (req, res) => {
   try {
     let formulas = req.body.formulas
     let dir = req.body.dir
-    let prefix = parseFloat(req.body.prefix)
+    let image_names = req.body.image_names
     // let renderTasks = []
     let clusterData = []
     let normFormulas = []
     for (let i = 0; i < formulas.length; i++) {
       let formula = formulas[i];
+      let image_name = image_names[i]
       // remove non-ascii
       formula = ParseFormula(formula);
       formula = formula.replace(/[^\x00-\x7F]/g, "");
       normFormulas.push(formula);
-      let savePath = dir + '//' + (prefix + i).toString() + '.png';
+      let savePath = dir + '//' + image_name;
       let data = { "formula": formula, "savePath": savePath };
       clusterData.push(data)
       if ((i + 1) % 100 === 0) {
