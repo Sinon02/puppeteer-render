@@ -167,6 +167,8 @@ def preprocess(bp, line):
     gt_line = re.sub(r'\\mathaccent', r"", gt_line)
     gt_line = re.sub(r'\\hfill', r"", gt_line)
     gt_line = re.sub(r'\\>', ' ', gt_line)
+    gt_line = re.sub(r'\\begin{array}\[[^\]]*\]', r'\\begin{array}', gt_line)  
+    gt_line = re.sub(r"\\renewcommand{[^}]*}{[^\}]*}", r"", gt_line)
 
     render_line = gt_line
     render_line = re.sub(r'\\left<', r'\\left< ', render_line)
