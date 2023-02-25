@@ -206,11 +206,12 @@ if __name__ == "__main__":
             formulas_to_render = [
                 preprocess(bp, formula)[1] for formula in formulas[i:i + 1000]
             ]
-            image_names = [str(i * 100 + j) + '.png' for j in range(len(formulas_to_render))]
+            image_names = [str(i + j) + '.png' for j in range(len(formulas_to_render))]
             data = {
                 'formulas': formulas_to_render,
                 'dir': save_dir,
-                'image_names': image_names
+                'image_names': image_names,
+                'need_parse': False
             }
             resp = requests.post(
                 url='http://localhost:8080/render',
