@@ -25,7 +25,7 @@
 <script type="text/javascript">
     function ChangeFormula(new_formula) {
         let Ele = document.getElementById("math");
-        let re = /((\\operatorname\*?)|(\\textrm))\s*\{[^\}]*\}/g
+        let re = /((\\operatorname\*?)|(\\textrm)|(\\textbf))\s*\{[^\}]*\}/g
         let matches = new_formula.match(re)
         if (matches != null) {
             for (let i = 0; i < matches.length; i++) {
