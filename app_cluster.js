@@ -49,8 +49,8 @@ async function RenderFormula(page, data) {
       return !!(typeof MathJax !== 'undefined') // !! converts anything to boolean
     })
     if (!mathJaxLoaded) {
-      await page.goto('file:///data/sinon/im2latex-pytorch/data/im2latex-official/puppeteer-render/page.html');
-      // await page.goto('file:///C:/Users/Sinon/Desktop/puppeteer-render/page.html');
+      // await page.goto('file:///data/sinon/im2latex-pytorch/data/im2latex-official/puppeteer-render/page.html');
+      await page.goto('file:///C:/Users/Sinon/Desktop/puppeteer-render/page.html');
       // console.log('MathJax Reloaded')
     }
     await page.evaluate((formula) => {
@@ -61,10 +61,11 @@ async function RenderFormula(page, data) {
         RandomBlank();
       }
     }, formula)
-    await page.waitForFunction(() => {
-      return window.renderComplete
-    });
-    await page.waitForTimeout(500);
+    await page.waitForFunction((msg) => {
+      return msg.style.display === 'none' && msg.innerHTML === '' && window.renderComplete
+    }, {},
+      await page.$("#MathJax_Message"));
+    await page.waitForTimeout(100);
     // let height = Math.floor((Math.random() * (800 - 256) + 256) / 64) * 64;
     // let width = Math.floor((Math.random() * (1600 - 256) + 256) / 64) * 64;
     let height = 64
