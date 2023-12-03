@@ -6,8 +6,19 @@ function ParseFormula(line) {
     // a = line
     global_str = ""
     norm_str = ""
+
+    if (line[0] == "%") {
+        line = line.substr(1, line.length - 1);
+    }
+    line = line.split('%')[0];
+
     line = line.split('\\~').join(' ');
 
+    for (var i = 0; i < 300; i++) {
+        line = line.replace(/\\>/, " ");
+        line = line.replace('$', ' ');
+        line = line.replace(/\\label{.*?}/, "");
+    }
 
     if (line.indexOf("matrix") == -1 && line.indexOf("cases") == -1 &&
         line.indexOf("array") == -1 && line.indexOf("begin") == -1) {
@@ -27,11 +38,11 @@ function ParseFormula(line) {
             var tree = katex.__parse(line, {});
             return (global_str.replace(/\\label { .*? }/, ""));
         } else {
-            // for (var i = 0; i < 300; ++i) {
-            //     line = line.replace(/{\\rm/, "\\mathrm{");
-            //     line = line.replace(/{ \\rm/, "\\mathrm{");
-            //     line = line.replace(/\\rm{/, "\\mathrm{");
-            // }
+            for (var i = 0; i < 300; ++i) {
+                line = line.replace(/{\\rm/, "\\mathrm{");
+                line = line.replace(/{ \\rm/, "\\mathrm{");
+                line = line.replace(/\\rm{/, "\\mathrm{");
+            }
 
             var tree = katex.__parse(line, {});
             buildExpression(tree, new options({}));
@@ -65,8 +76,6 @@ groupTypes.mathord = function (group, options) {
                 norm_str = norm_str + group.value[i] + " ";
             }
         }
-    } else if (group.value === "\\sl" || group.value === "\\tr" || group.value === "\\cite") {
-        // pass
     } else {
         norm_str = norm_str + group.value + " ";
     }
@@ -168,7 +177,7 @@ groupTypes.genfrac = function (group, options) {
 groupTypes.array = function (group, options) {
 
 
-    if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases" || group.value.style == "aligned") {
+    if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases") {
         norm_str = norm_str + "\\begin{" + "array" + "} ";
         norm_str = norm_str + "{ ";
         if (group.value.cols) {
@@ -196,17 +205,16 @@ groupTypes.array = function (group, options) {
                 norm_str = norm_str + "\\hline ";
                 row[0].value = row[0].value.slice(1);
             }
-            if (!(row.length === 0 || row.length === 1 && (typeof row[0] === 'undefined' || row[0].value.length === 0))) {
-                out = row.map(function (cell) {
-                    buildGroup(cell, options);
-                    norm_str = norm_str + "& ";
-                });
-            }
-            norm_str = norm_str.replace(/&\s*$/g, '') + "\\\\ ";
+            out = row.map(function (cell) {
+                buildGroup(cell, options);
+                norm_str = norm_str + "& ";
+            });
+            norm_str = norm_str.substring(0, norm_str.length - 2) + "\\\\ ";
         }
     });
-    if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases" || group.value.style == "aligned") {
-        norm_str = norm_str.replace(/\\\\\s$/g, '') + "\\end{" + "array" + "} ";
+
+    if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases") {
+        norm_str = norm_str + "\\end{" + "array" + "} ";
     } else {
         norm_str = norm_str + "\\end{" + group.value.style + "} ";
     }
@@ -293,14 +301,8 @@ groupTypes.font = function (group, options) {
     if (font == "mbox" || font == "hbox") {
         font = "mathrm";
     }
-    if (font !== 'noalign' && font !== 'vspace' && font !== 'hspace' && font !== 'raisebox') {
-        norm_str = norm_str + "\\" + font + " ";
-        if (group.value.body !== undefined) {
-            buildGroup(group.value.body, options.withFont(font));
-        }
-    } else if (font === 'hspace') {
-        norm_str = norm_str + "~ ";
-    }
+    norm_str = norm_str + "\\" + font + " ";
+    buildGroup(group.value.body, options.withFont(font));
 };
 
 groupTypes.delimsizing = function (group) {
@@ -345,8 +347,8 @@ groupTypes.underline = function (group, options) {
 };
 
 groupTypes.rule = function (group) {
-    // norm_str = norm_str + "\\rule { "+group.value.width.number+" "+group.value.width.unit+"  } { "+group.value.height.number+" "+group.value.height.unit+ " } ";
-    norm_str = norm_str;
+    norm_str = norm_str + "\\rule { " + group.value.width.number + " " + group.value.width.unit + "  } { " + group.value.height.number + " " + group.value.height.unit + " } ";
+
 };
 
 groupTypes.llap = function (group, options) {
