@@ -177,7 +177,7 @@ groupTypes.genfrac = function (group, options) {
 groupTypes.array = function (group, options) {
 
 
-    if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases") {
+    if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases" || group.value.style == "aligned") {
         norm_str = norm_str + "\\begin{" + "array" + "} ";
         norm_str = norm_str + "{ ";
         if (group.value.cols) {
@@ -213,8 +213,8 @@ groupTypes.array = function (group, options) {
         }
     });
 
-    if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases") {
-        norm_str = norm_str + "\\end{" + "array" + "} ";
+    if (group.value.style == "array" || group.value.style == "tabular" || group.value.style == "matrix" || group.value.style == "cases" || group.value.style == "aligned") {
+        norm_str = norm_str.replace(/\\\\\s$/g, '') + "\\end{array} ";
     } else {
         norm_str = norm_str + "\\end{" + group.value.style + "} ";
     }

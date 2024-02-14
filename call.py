@@ -35,7 +35,7 @@ class BracketParser(object):
                 last_open_bracket = bracket_stack.pop()
                 if self.check_match(last_open_bracket, token):
                     if len(bracket_stack) == 0:
-                        return True, seq[start_idx:idx + 1]
+                        return True, seq[start_idx : idx + 1]
                 else:
                     return False, ''
         return False, ''
@@ -43,9 +43,7 @@ class BracketParser(object):
     def find_all_operators(self, operator, seq, inner=True):
         operator = operator.replace('\\', '\\\\')
         if inner:
-            return [
-                substr.start() - 1 for substr in re.finditer(operator, seq)
-            ]
+            return [substr.start() - 1 for substr in re.finditer(operator, seq)]
         else:
             return [substr.start() for substr in re.finditer(operator, seq)]
 
@@ -54,8 +52,7 @@ class BracketParser(object):
         all_occur = [0, *all_occur, len(seq)]
         copyed_seq = seq
         for idx in range(len(all_occur) - 1):
-            res, subseq = self.check_brackets(
-                seq[all_occur[idx]:all_occur[idx + 1]])
+            res, subseq = self.check_brackets(seq[all_occur[idx] : all_occur[idx + 1]])
             if res:
                 if inner and tag in subseq:
                     copyed_seq = copyed_seq.replace(subseq, '', 1)
@@ -75,22 +72,24 @@ class BracketParser(object):
         copyed_seq = []
         for idx in range(len(all_occur) - 1):
             if all_occur[idx] == -1:
-                cur_seq = seq[:all_occur[idx + 1]]
+                cur_seq = seq[: all_occur[idx + 1]]
                 need_pad = True
             else:
                 need_pad = False
-                cur_seq = seq[all_occur[idx]:int(max(0, all_occur[idx + 1]))]
+                cur_seq = seq[all_occur[idx] : int(max(0, all_occur[idx + 1]))]
 
             res, subseq = self.check_brackets(
-                cur_seq, open_brackets=['{', '('], close_brackets=['}', ')'])
+                cur_seq, open_brackets=['{', '('], close_brackets=['}', ')']
+            )
             old_tag_exist = old_tag in cur_seq
 
             if need_pad:
                 if res:
                     cur_seq = re.sub(
-                        f'\\{subseq[0]}?' + old_tag.replace('\\',
-                                                            '\\\\') + '\s*',
-                        '{' + '{'.join(new_tag).replace('\\', '\\\\'), cur_seq)
+                        f'\\{subseq[0]}?' + old_tag.replace('\\', '\\\\') + '\s*',
+                        '{' + '{'.join(new_tag).replace('\\', '\\\\'),
+                        cur_seq,
+                    )
 
                     edit_subseq = subseq + '}' * len(new_tag)
                     cur_seq = cur_seq.replace(subseq, edit_subseq)
@@ -99,16 +98,15 @@ class BracketParser(object):
                 res, render_item = self.check_brackets(subseq[1:-1])
                 edit_subseq = re.sub(
                     f'\\{subseq[0]}?' + old_tag.replace('\\', '\\\\') + '\s*',
-                    f'{subseq[0]}' + '{'.join(new_tag).replace(
-                        '\\', '\\\\') + "{", subseq)
+                    f'{subseq[0]}' + '{'.join(new_tag).replace('\\', '\\\\') + "{",
+                    subseq,
+                )
 
                 if res:
                     striped_render_item = re.sub(r'^{', '', render_item)
                     if subseq[0] == '{':
-                        striped_render_item = re.sub(r'}$', '',
-                                                     striped_render_item)
-                    edit_subseq = edit_subseq.replace(render_item,
-                                                      striped_render_item)
+                        striped_render_item = re.sub(r'}$', '', striped_render_item)
+                    edit_subseq = edit_subseq.replace(render_item, striped_render_item)
                 else:
                     if subseq[0] != '{':
                         edit_subseq = edit_subseq[:-1] + '}' + edit_subseq[-1]
@@ -133,12 +131,17 @@ def preprocess(bp, line):
     gt_line = re.sub(r'\\fbox', r"", gt_line)
     gt_line = re.sub(
         r'((\\hskip)|(\\mkern)|(\\kern)|(\\raise))[0-9\.\-\s]*(true)*\s*((cm)|(em)|(pt)|(ex)|(mm)|(in)|(mu))',
-        '', gt_line)
+        '',
+        gt_line,
+    )
     gt_line = re.sub(
         r'\\makebox\[[0-9\.\-\s]*((cm)|(em)|(pt)|(ex)|(mm)|(in)|(mu))\](\[[a-zA-Z]*\])?',
-        '', gt_line)
-    gt_line = re.sub(r'\[[0-9\.\-\s]*((cm)|(em)|(pt)|(ex)|(mm)|(in)|(mu))\]',
-                     '', gt_line)
+        '',
+        gt_line,
+    )
+    gt_line = re.sub(
+        r'\[[0-9\.\-\s]*((cm)|(em)|(pt)|(ex)|(mm)|(in)|(mu))\]', '', gt_line
+    )
     # gt_line = bp.replace_inner_tags(r'\rm\bf', [r'\mathrm', r'\textbf'], gt_line)
     # gt_line = bp.replace_inner_tags(r'\bf\rm', r'\mathrm', gt_line)
     gt_line = bp.replace_inner_tags(r'\rm', r'\mathrm', gt_line)
@@ -159,7 +162,9 @@ def preprocess(bp, line):
     gt_line = re.sub(r'\\boldmath', r"\\mathbf", gt_line)
     gt_line = re.sub(
         r'(?<!\\)\\([A-Za-z\+\-\*\/])(?=\\|\s|_|\^|\(|\)|\{|\}|\+|\-|\/|\*|=|\||[0-9]|\,)',
-        r' \g<1> ', gt_line)
+        r' \g<1> ',
+        gt_line,
+    )
     gt_line = re.sub(r'\\hline\s*\\hline', r'\\hline', gt_line)
     gt_line = re.sub(r'((?<!\\)\\\(|\\\))', r"", gt_line)
     gt_line = re.sub(r'((?<!\\)\\\[|\\\])', r"", gt_line)
@@ -167,7 +172,7 @@ def preprocess(bp, line):
     gt_line = re.sub(r'\\mathaccent', r"", gt_line)
     gt_line = re.sub(r'\\hfill', r"", gt_line)
     gt_line = re.sub(r'\\>', ' ', gt_line)
-    gt_line = re.sub(r'\\begin{array}\[[^\]]*\]', r'\\begin{array}', gt_line)  
+    gt_line = re.sub(r'\\begin{array}\[[^\]]*\]', r'\\begin{array}', gt_line)
     gt_line = re.sub(r"\\renewcommand{[^}]*}{[^\}]*}", r"", gt_line)
 
     render_line = gt_line
@@ -183,18 +188,20 @@ def preprocess(bp, line):
     render_line = render_line.strip()
     return gt_line, render_line
 
+
 if __name__ == "__main__":
     save_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        '../formula_images_processed')
+        os.path.dirname(os.path.abspath(__file__)), './formula_images_processed'
+    )
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
     input_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '../im2latex_formulas.lst')
+        os.path.dirname(os.path.abspath(__file__)), './im2latex_formulas.lst'
+    )
     output_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        '../im2latex_formulas.norm.lst')
+        os.path.dirname(os.path.abspath(__file__)), './im2latex_formulas.norm.lst'
+    )
     with open(input_file, encoding='ISO-8859-1', newline="\n") as fin:
         formulas = fin.readlines()
         print(len(formulas))
@@ -204,19 +211,20 @@ if __name__ == "__main__":
     with open(output_file, 'w', encoding='utf-8') as f:
         for i in range(0, len(formulas), 1000):
             formulas_to_render = [
-                preprocess(bp, formula)[1] for formula in formulas[i:i + 1000]
+                preprocess(bp, formula)[1] for formula in formulas[i : i + 1000]
             ]
             image_names = [str(i + j) + '.png' for j in range(len(formulas_to_render))]
             data = {
                 'formulas': formulas_to_render,
                 'dir': save_dir,
                 'image_names': image_names,
-                'need_parse': False
+                'need_parse': False,
             }
             resp = requests.post(
                 url='http://localhost:8080/render',
                 headers=headers,
-                data=json.dumps(data))
+                data=json.dumps(data),
+            )
             try:
                 data = resp.json()
                 print(data['msg'])
