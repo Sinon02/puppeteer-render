@@ -1,10 +1,11 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const path = require('path');
 const { performance } = require('perf_hooks');
 const { Cluster } = require('puppeteer-cluster');
 var ParseFormula = require('./preprocess_latex.js')
 ParseFormula = ParseFormula.ParseFormula
 
+PROCESS_NUM = 20
 const app = express();
 app.use(express.json({ limit: "10mb" }))
 
@@ -13,7 +14,7 @@ var cluster;
 (async () => {
   const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
-    maxConcurrency: 10,
+    maxConcurrency: PROCESS_NUM,
     monitor: false,
     timeout: 999999,
     puppeteerOptions: {
@@ -49,23 +50,25 @@ async function RenderFormula(page, data) {
       return !!(typeof MathJax !== 'undefined') // !! converts anything to boolean
     })
     if (!mathJaxLoaded) {
-      // await page.goto('file:///data/sinon/im2latex-pytorch/data/im2latex-official/puppeteer-render/page.html');
-      await page.goto('file:///C:/Users/Sinon/Desktop/puppeteer-render/page.html');
+      // 获取当前工作目录
+      const cwd = process.cwd();
+      // 构建相对路径
+      const relativePath = path.join(cwd, './page.html');
+      await page.goto('file://' + relativePath);
       // console.log('MathJax Reloaded')
     }
     await page.evaluate((formula) => {
-      window.renderComplete = false
       if (!(formula === null || formula.match(/^\s*$/) !== null)) {
-        ChangeFormula(formula);
+        return ChangeFormula(formula);
       } else {
-        RandomBlank();
+        return RandomBlank();
       }
     }, formula)
     await page.waitForFunction((msg) => {
-      return msg.style.display === 'none' && msg.innerHTML === '' && window.renderComplete
+      return msg.style.display === 'none' && msg.innerHTML === ''
     }, {},
       await page.$("#MathJax_Message"));
-    await page.waitForTimeout(100);
+    // await page.waitForTimeout(100);
     // let height = Math.floor((Math.random() * (800 - 256) + 256) / 64) * 64;
     // let width = Math.floor((Math.random() * (1600 - 256) + 256) / 64) * 64;
     let height = 64
@@ -109,7 +112,7 @@ app.post('/render', async (req, res) => {
       let savePath = dir + '//' + image_name;
       let data = { "formula": formula, "savePath": savePath };
       clusterData.push(data)
-      if ((i + 1) % 100 === 0) {
+      if ((i + 1) % (1000 / PROCESS_NUM) === 0) {
         cluster.queue(clusterData);
         clusterData = [];
       }

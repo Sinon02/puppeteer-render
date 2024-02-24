@@ -24,26 +24,32 @@
 </body>
 <script type="text/javascript">
     function ChangeFormula(new_formula) {
-        let Ele = document.getElementById("math");
-        let re = /((\\operatorname\*?)|(\\textrm)|(\\textbf))\s*\{[^\}]*\}/g
-        let matches = new_formula.match(re)
-        if (matches != null) {
-            for (let i = 0; i < matches.length; i++) {
-                let oldSub = matches[i];
-                let newSub = oldSub.replaceAll(' ', '').replace('{', ' { ').replace('}', ' }');
-                new_formula = new_formula.replace(oldSub, newSub);
+        return new Promise((resolve, reject) => {
+            let Ele = document.getElementById("math");
+            let re = /((\\operatorname\*?)|(\\textrm)|(\\textbf))\s*\{[^\}]*\}/g
+            let matches = new_formula.match(re)
+            if (matches != null) {
+                for (let i = 0; i < matches.length; i++) {
+                    let oldSub = matches[i];
+                    let newSub = oldSub.replaceAll(' ', '').replace('{', ' { ').replace('}', ' }');
+                    new_formula = new_formula.replace(oldSub, newSub);
+                }
             }
-        }
-        Ele.innerHTML = '$' + new_formula + '$';
-        MathJax.Hub.Queue(['Typeset', MathJax.Hub, Ele], () => {
-            window.renderComplete = true;
+            Ele.innerHTML = '$' + new_formula + '$';
+
+            MathJax.Hub.Queue(['Typeset', MathJax.Hub, Ele]);
+            MathJax.Hub.Queue(() => resolve());
         });
+
     }
 
     function RandomBlank() {
-        let Ele = document.getElementById("math");
-        Ele.innerHTML = ''
-        window.renderComplete = true;
+        return new Promise((resolve, reject) => {
+            let Ele = document.getElementById("math");
+            Ele.innerHTML = '';
+            MathJax.Hub.Queue(['Typeset', MathJax.Hub, Ele]);
+            MathJax.Hub.Queue(() => resolve());
+        });
     }
 </script>
 <script type="text/x-mathjax-config">

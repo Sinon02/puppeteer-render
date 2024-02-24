@@ -2,6 +2,8 @@ import requests
 import os
 import json
 import re
+import timeit
+import shutil
 
 
 class BracketParser(object):
@@ -189,12 +191,13 @@ def preprocess(bp, line):
     return gt_line, render_line
 
 
-if __name__ == "__main__":
+def main():
     save_dir = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), './formula_images_processed'
     )
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
+    if os.path.exists(save_dir):
+        shutil.rmtree(save_dir)
+    os.makedirs(save_dir)
 
     input_file = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), './im2latex_formulas.lst'
@@ -232,3 +235,9 @@ if __name__ == "__main__":
                 f.write('\n'.join(norm_formulas) + '\n')
             except Exception:
                 continue
+
+
+if __name__ == "__main__":
+    timer = timeit.Timer(main)
+    execution_time = timer.timeit(number=1)
+    print("程序运行时间：", execution_time, "秒")
